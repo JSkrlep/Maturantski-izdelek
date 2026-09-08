@@ -1,30 +1,43 @@
-Vremenska postaja
---------------------------------------------------------------------------------------------------------------------
-Ideja
---------------------------------------------------------------------------------------------------------------------
+# Vremenska postaja
 
-Osnovna ideja vremenske postaje je, da bi postavil na eno zunanjo lokacijo škatlo oz. senzorje s katerimi bi meril v določenem kraju koliko je temperature, padavine, svetlost, vlažnost... In nato na drugi lokaciji nekje doma ali v sobi
-bi s pomočjo ESP32 te podatke dobival in jih nato grafično prikazoval na računalniku kot grafe. Preko spletne strani, ki to omogoča.
+## Ideja
+Osnovna ideja projekta je postaviti na zunanjo lokacijo napravo s senzorji, ki meri vremenske parametre – temperaturo, količino padavin, svetlost in vlažnost. Izmerjeni podatki se nato prek brezžične povezave prenesejo na drugo lokacijo (npr. domov ali v sobo), kjer jih ESP32 sprejme in posreduje na spletno stran, ki podatke grafično prikazuje v obliki grafov.
 
--------------------------------------------------------------------------------------------------------------------
-Delovanje
------------------------------------------------------------------------------------------------------------------
+## Delovanje sistema
+Sistem sestavljata dve glavni komponenti: **oddajna enota** (Arduino vezje s senzorji) in **sprejemna enota** (ESP32 vezje), ki med seboj komunicirata prek LoRa modulov.
 
-Celotni izdelek ima 2 glavni komponenti:
+### 1. Oddajna enota – Arduino vezje
+Osnova oddajne enote je mikrokontroler **Arduino Pro Mini (3.3V, 8 MHz)**. Vezje na senzorjih vsakih **15 sekund** izmeri vse vremenske parametre in jih pošlje naprej.
 
-1. komponenta - Arduino vezje
+**Uporabljeni senzorji:**
 
-Arduino vezje je bazirano na mikrokontrolerju Arduino Pro Mini 3.3V, 8 MHz. Ta mi omogoča da iz vseh senzorjev, ki so priklopljeni na njega pošlje na intervalu 15 sekund vse podatke o vremenu. Torej na vsakih 15 sekund mi senzor izmeri vse podatke in jih nato pregledno izpisuje. 
-ima različne senzorje za merjenje različnih karakteristik.
-1. BME280 je senzor, ki je vezan mi omogoča branje temperature, pritiska in vlažnost.
-2. senzor je deževni senzor, ta je narejen za merjenje padavin oz. zazna koliko vode je na površini.
-3. senzor je BH1750, na vezju prikazuje koliko je trenutna svetlost. Merim jo v enoti lux.
+| Senzor | Merjena karakteristika |
+|---|---|
+| BME280 | Temperatura, zračni pritisk, vlažnost |
+| Deževni senzor | Zaznava količine padavin/vode na površini |
+| BH1750 | Svetlost (enota: lux) |
 
-kot četrta komponenta v vezju nastopa LoRa module SX1278, ki omogoča komunikacijo z drugo komponento katera dejanske podatke, da na širni internet.
+**Komunikacijski modul:**
+- **LoRa SX1278** – omogoča brezžični prenos izmerjenih podatkov do sprejemne enote na drugi lokaciji.
 
+### 2. Sprejemna enota – ESP32 vezje
+Sprejemna enota je strojno enostavnejša, saj vsebuje le:
+- **ESP32** mikrokontroler
+- **LoRa modul SX1278** (sprejemnik)
 
-2. komponenta - ESP32 vezje
+Kljub enostavnejši strojni zasnovi je ta del zahtevnejši na programski strani, saj mora ESP32 prejete podatke ustrezno dekodirati/obdelati in jih posredovati naprej na **API**. Spletna stran nato na podlagi API podatkov izriše grafe za vsako izmerjeno karakteristiko (temperatura, pritisk, vlažnost, padavine, svetlost).
 
-To vezje je po komponentah enostavnejše, saj imamo gor dejansko samo ESP32 in LoRa module SX1278.
-Je pa bolj težaven z vidika kodiranja, saj je treba vse te podatke ustrezno šifrirati, da jih lahko potem ESP32 poda naprej na API
-in nato, na spletni strani ustrezno izriše grafe za vsako karakteristiko.
+## Arhitektura prenosa podatkov
+
+Senzorji -> Arduino Pro Mini -> LoRaSX1278 oddajnik -> LoRaSX1278 sprejemnik -> ESP32 -> API -> spletna stran
+
+## Uporabljene komponente
+- Arduino Pro Mini 3.3V, 8 MHz
+- ESP32
+- LoRa modul SX1278 (x2)
+- Senzor BME280 (temperatura, pritisk, vlažnost)
+- Deževni senzor
+- Senzor BH1750 (svetlost)
+
+## Avtor
+Jure Škrlep
